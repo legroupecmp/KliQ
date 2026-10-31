@@ -153,7 +153,7 @@ function tabs(){
 
 /* ---------- Côté citoyen ---------- */
 function svcRows(){
-  var q=S.q.trim().toLowerCase(),keys=Object.keys(SV).filter(function(k){return !q||SV[k].toLowerCase().indexOf(q)>-1});
+  var norm=function(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')};var q=norm(S.q.trim()),keys=Object.keys(SV).filter(function(k){return !q||norm(SV[k]).indexOf(q)>-1});
   if(!keys.length)return '<p class="muted" style="padding:16px 0">Aucun service ne correspond à « '+esc(S.q)+' ».</p>';
   return '<div class="list">'+keys.map(function(k){var n=count(k,S.region);
     return '<button class="row" data-act="svc" data-v="'+k+'"><span class="n">'+SV[k]+'</span><span class="c">'+(n?n+(n>1?' entreprises':' entreprise'):'Aucune')+' ›</span></button>'}).join('')+'</div>';
