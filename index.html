@@ -15,14 +15,8 @@
 :root{
   --bg:#FFFFFF; --fg:#0E1420; --muted:#5A6578; --accent:#0B3D91; --on-accent:#FFFFFF;
   --surface:#F2F5FB; --line:#D8E0EE; --good:#17724A; --good-bg:#E3F4EB; --warn:#9A5B00; --warn-bg:#FFF1D6;
-  --font-display:'Sora','Segoe UI',system-ui,sans-serif; --font-body:'Figtree','Segoe UI',system-ui,sans-serif;
+  color-scheme:light; --font-display:'Sora','Segoe UI',system-ui,sans-serif; --font-body:'Figtree','Segoe UI',system-ui,sans-serif;
 }
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0B111D; --fg:#EDF1F8; --muted:#9AA6BC; --accent:#7AA4FF; --on-accent:#0B111D;
-  --surface:#131B2C; --line:#25314A; --good:#5BD59A; --good-bg:#12301F; --warn:#F2B558; --warn-bg:#35280D; color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0B111D; --fg:#EDF1F8; --muted:#9AA6BC; --accent:#7AA4FF; --on-accent:#0B111D;
-  --surface:#131B2C; --line:#25314A; --good:#5BD59A; --good-bg:#12301F; --warn:#F2B558; --warn-bg:#35280D; color-scheme:dark}
 *{box-sizing:border-box}
 html,body{height:100%}
 body{background:var(--bg);color:var(--fg);font-family:var(--font-body);font-size:16px;line-height:1.45;
@@ -89,10 +83,10 @@ button.card:hover{border-color:var(--accent)}
 .rank div{display:flex;justify-content:space-between;gap:8px;padding:8px 10px;border-radius:8px;font-size:14px;background:var(--surface)}
 .rank div.me{background:var(--accent);color:var(--on-accent);font-weight:700}
 .toast{position:fixed;left:50%;bottom:calc(92px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:20;max-width:90%}
-.err{color:#B3261E;font-size:13px} @media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .err{color:#FF8A80}} :root[data-theme="dark"] .err{color:#FF8A80}
+.err{color:#B3261E;font-size:13px}
 @media (prefers-reduced-motion:no-preference){main>*{animation:in .25s ease both}@keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}}
 </style>
-<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light dark}html,body{margin:0}body{font-size:16px}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}html,body{margin:0}body{font-size:16px}img{max-width:100%}[hidden]{display:none!important}</style>
 </head>
 <body>
 
