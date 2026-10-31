@@ -49,7 +49,14 @@ input:focus,select:focus,textarea:focus{border-color:var(--accent);outline:none}
 .back{align-self:flex-start;background:none;border:0;color:var(--accent);font-weight:600;padding:6px 0;min-height:40px}
 .list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
 .row{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;padding:14px 2px;background:none;border:0;border-bottom:1px solid var(--line);min-height:52px}
-.row .n{font-weight:600} .row .c{color:var(--muted);font-size:14px;white-space:nowrap}
+.row .n{font-weight:600;display:block} .row .d{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+#svcs{display:flex;flex-direction:column;gap:10px}.cat{display:flex;flex-direction:column;gap:6px}
+.cathead{display:flex;align-items:center;gap:10px;width:100%;background:var(--surface);border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;min-height:56px;text-align:left}
+.cathead:hover{border-color:var(--accent)}
+.catt{font-family:var(--font-display);font-size:15px;font-weight:600;letter-spacing:-.01em;flex:1;min-width:0}
+.catn{font-size:13px;color:var(--muted);white-space:nowrap}
+.chev{font-size:22px;line-height:1;color:var(--accent);transition:transform .15s}
+.cathead[aria-expanded=true] .chev{transform:rotate(90deg)}
 .row:hover .n{color:var(--accent)}
 .card{border:1.5px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px;background:var(--bg);text-align:left;width:100%;min-width:0}
 button.card:hover{border-color:var(--accent)}
@@ -94,7 +101,56 @@ button.card:hover{border-color:var(--accent)}
 <div class="toast" id="toast" hidden role="status"></div>
 <script>
 (function(){
-var SV={den:'Déneigement',gout:'Installation de gouttières',fen:'Fenêtres',det:'Détailing',pave:'Pavé',rev:'Revêtements',amen:'Aménagement',trait:'Traitement de pelouse',tonte:'Tonte de pelouse',asph:'Asphalte',roue:'Changement de roues',lum:'Installation de lumières',ngout:'Nettoyage de gouttières',toit:'Toitures',rou:'Traitement de roulotte',elec:'Électricien',plom:'Plombier',pisc:'Service de piscine',joint:'Tireur de joints',peint:'Peintre'};
+var SV={den:'Déneigement',gout:'Installation de gouttières',fen:'Fenêtres',det:'Détailing',pave:'Pavé',rev:'Revêtements',amen:'Aménagement',trait:'Traitement de pelouse',tonte:'Tonte de pelouse',asph:'Asphalte',roue:'Changement de roues',lum:'Installation de lumières',ngout:'Nettoyage de gouttières',toit:'Toitures',rou:'Traitement de roulotte',elec:'Électricien',plom:'Plombier',pisc:'Service de piscine',joint:'Tireur de joints',peint:'Peintre',elag:'Élagage et abattage d\'arbres',lav:'Lavage à pression',mena:'Ménage et entretien ménager',homme:'Homme à tout faire',serr:'Serrurier',therm:'Thermopompe et chauffage',fosse:'Vidange de fosse septique',bois:'Livraison de bois de chauffage',meca:'Mécanicien mobile',nrev:'Nettoyage de revêtement',npave:'Nettoyage de pavé',nfen:'Nettoyage de fenêtres',nrou:'Nettoyage de roulotte',nveh:'Nettoyage de véhicule',toil:'Toilettage d\'animaux',esth:'Soins esthétiques',ong:'Manucure et pédicure',coif:'Coiffure et barbier',mass:'Massothérapie',aide:'Aide à domicile'};
+var CATS=[
+['Extérieur et terrain',['den','tonte','trait','amen','pave','asph','pisc','elag']],
+['Nettoyage et lavage',['lav','nrev','npave','nfen','nrou','nveh','ngout','mena']],
+['Toiture, fenêtres et revêtements',['toit','gout','rev','fen']],
+['Maison et rénovation',['peint','joint','homme','serr']],
+['Électricité, plomberie et chauffage',['elec','lum','plom','therm','fosse','bois']],
+['Véhicules et roulottes',['det','roue','rou','meca']],
+['Beauté, animaux et soins à domicile',['toil','esth','ong','coif','mass','aide']]];
+var KW={
+den:['Neige, entrée, stationnement','neige souffleuse deneiger deneigeur hiver tracteur pelleter pelle sel sablage deglacage'],
+tonte:['Coupe de gazon et entretien','gazon coupe tondre tondeuse pelouse entretien terrain'],
+trait:['Fertilisation et mauvaises herbes','pelouse engrais fertilisation herbicide mauvaises herbes pissenlit vers blancs aeration'],
+amen:['Aménagement paysager','paysagiste paysagement terrassement jardin plate-bande muret terrain gazon sod'],
+pave:['Pavé uni, murets et patios','pave uni paver patio muret dalle trottoir bordure entree'],
+asph:['Entrées, stationnements, rapiéçage','asphalte pavage entree stationnement scellant fissures rapiecage bitume'],
+pisc:['Ouverture, fermeture, entretien','piscine spa bain tourbillon ouverture fermeture chlore eau pompe'],
+elag:['Arbres, haies, souches','elagage abattage arbre arbres haie taille souche essouchement branches bucheron coupe'],
+lav:['Maison, entrée, patio, remorque','lavage pression washer nettoyage laveuse patio entree maison terrasse'],
+toit:['Réparation et réfection de toiture','toit toiture bardeaux couvreur tole membrane fuite reparation refection'],
+gout:['Gouttières neuves ou remplacées','gouttiere descente pluviale aluminium soffite fascia'],
+ngout:['Nettoyage et dégagement','nettoyer gouttiere deboucher feuilles aiguilles entretien annuel'],
+rev:['Vinyle, canexel, acier, brique','revetement exterieur vinyle canexel acier bardage brique parement'],
+fen:['Fenêtres et portes','vitre porte patio remplacement installation thermos cadre'],
+peint:['Intérieur et extérieur','peinture peintre murs plafond teinture vernis couleur'],
+joint:['Joints de gypse, finition','joint gypse tirage platre cloison placoplatre finition'],
+mena:['Ménage résidentiel et après déménagement','menage nettoyage maison entretien menager femme de menage conciergerie propre'],
+homme:['Petites réparations et travaux','homme a tout faire reparation bricolage menuiserie assemblage meuble petits travaux handyman'],
+serr:['Serrures, clés, déverrouillage','serrurier cle serrure verrou deverrouiller barrure cadenas porte'],
+elec:['Panneaux, prises, dépannage','electricien electricite panneau prise filage disjoncteur courant panne'],
+lum:['Lumières extérieures et de Noël','lumiere eclairage noel guirlande exterieur led spots luminaire'],
+plom:['Dépannage, fuites, installation','plombier plomberie fuite robinet toilette chauffe-eau drain bouche eau'],
+therm:['Thermopompe, climatisation, chauffage','thermopompe climatisation chauffage fournaise cvc plinthe air chaud bibloc'],
+fosse:['Vidange et inspection','fosse septique vidange puisard camion pompage installation septique champ epuration'],
+bois:['Bois de chauffage livré','bois chauffage corde cordes buches poele foyer livraison merisier erable'],
+det:['Nettoyage intérieur et extérieur de véhicules','detailing lavage auto voiture polissage cire shampoing interieur esthetique'],
+roue:['Pneus d\'été et d\'hiver','pneu pneus roues changement saisonnier hiver ete balancement pose'],
+rou:['Antirouille et étanchéité','roulotte vr camper caravane antirouille etancheite hivernisation traitement'],
+meca:['Mécanique à domicile','mecanicien mobile reparation auto freins batterie vidange huile diagnostic'],
+nrev:['Vinyle, canexel, brique, acier','nettoyage revetement exterieur laver vinyle canexel brique parement lavage maison moisissure algues'],
+npave:['Pavé uni, entrée, patio','nettoyage pave uni laver patio entree dalle trottoir sablage polymere mousse'],
+nfen:['Vitres intérieures et extérieures','nettoyage fenetres vitres laveur de vitres carreaux lavage vitre'],
+nrou:['Intérieur et extérieur de roulotte','nettoyage roulotte vr camper caravane laver lavage cire'],
+nveh:['Voiture, camion, VUS','nettoyage vehicule voiture auto camion vus lave-auto lavage aspirateur interieur'],
+toil:['Chiens et chats, à domicile','toilettage animaux chien chat toiletteur bain coupe griffes poils animalerie mobile'],
+esth:['Visage, épilation, soins de la peau','soins esthetiques esthetique estheticienne visage epilation cire peau maquillage cils sourcils'],
+ong:['Ongles et soins des pieds','manucure pedicure ongles gel vernis pieds nail'],
+coif:['Coupe, couleur, barbier','coiffure coiffeuse coiffeur barbier coupe couleur cheveux brushing barbe'],
+mass:['Massage thérapeutique et détente','massotherapie massage massotherapeute detente relaxation therapeutique dos'],
+aide:['Soins et accompagnement à la maison','aide domicile aide a domicile soins personnes agees accompagnement preposee repit']};
 var R={vd:"Val-d'Or",rn:'Rouyn-Noranda',am:'Amos',ls:'La Sarre',ma:'Malartic',se:'Senneterre',mc:'Macamic',lq:'Lebel-sur-Quévillon'};
 var PRICE={inscription:369.99,mensuel:99.99,service:9.99};
 function C(id,name,since,tag,svs,regs,bid,tel){return {id:id,name:name,since:since,tag:tag,svs:svs.split(' '),regs:regs.split(' '),bid:bid,tel:'819-555-01'+tel,web:'www.'+name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'')+'.example',active:true,hist:''}}
@@ -117,16 +173,34 @@ C('c14','Peintres du Nord',2020,'Finition soignée, matériaux inclus.','peint',
 C('c15','Fenêtres Clair-Vue',2010,'Fenêtres et revêtements éconergétiques.','fen rev','vd rn am',55,'15'),
 C('c16','Asphalte et Pavé Nord',2007,'Entrées d\'asphalte et pavé uni.','asph pave','vd rn am ls',65,'16'),
 C('c17','Pavé Design Abitibi',2018,'Pavé, murets et aménagement.','pave amen','vd ma',0,'17'),
-C('c18','Détail Auto Prestige',2019,'Nettoyage complet de véhicules, à domicile.','det roue','vd rn',20,'18'),
+C('c18','Détail Auto Prestige',2019,'Nettoyage complet de véhicules, à domicile.','det roue nveh','vd rn',20,'18'),
 C('c19','Pneus Mobile',2021,'Changement de roues à votre porte.','roue','vd am ma',0,'19'),
 C('c20','Piscines Bleu Nord',2014,'Ouverture, fermeture et entretien.','pisc','vd rn ls',0,'20'),
-C('c21','Roulottes Protégées',2016,'Traitement antirouille et étanchéité.','rou','vd rn am',15,'21'),
+C('c21','Roulottes Protégées',2016,'Traitement antirouille et étanchéité.','rou nrou','vd rn am',15,'21'),
 C('c22','Gouttières Plus',2013,'Gouttières sans joints, nettoyage saisonnier.','gout ngout','vd rn se mc',0,'22'),
 C('c23','Joints Précis',2017,'Tirage de joints, finition lisse.','joint','vd ma',0,'23'),
 C('c24','Lumières Festives Abitibi',2020,'Installation de lumières de Noël et d\'extérieur.','lum','vd rn am',10,'24'),
-C('c25','Revêtements Boréal',2012,'Vinyle, canexel et acier.','rev','vd rn se mc',0,'25')
+C('c25','Revêtements Boréal',2012,'Vinyle, canexel et acier.','rev','vd rn se mc',0,'25'),
+C('c26','Arbres Abitibi Élagage',2015,'Élagage, abattage et essouchement.','elag','vd rn am ma',30,'26'),
+C('c27','Pression Nette',2020,'Lavage à pression de maisons et d\'entrées.','lav nrev npave','vd rn am',0,'27'),
+C('c28','Ménage Éclair',2018,'Ménage régulier et après déménagement.','mena','vd rn am ma',15,'28'),
+C('c29','Bricolo Nord',2016,'Petites réparations et travaux variés.','homme','vd rn se',0,'29'),
+C('c30','Serrurier Sûr',2011,'Dépannage de serrures, service rapide.','serr','vd rn am ls',25,'30'),
+C('c31','Confort Thermo',2013,'Thermopompes et chauffage, installation et entretien.','therm','vd rn am ma',40,'31'),
+C('c32','Fosses Septiques Abitibi',2009,'Vidange et inspection de fosses septiques.','fosse','vd rn am ls mc',0,'32'),
+C('c33','Bois de Chauffage du Nord',2014,'Bois sec livré à votre porte.','bois','vd se lq ma',0,'33'),
+C('c34','Mécanique Mobile',2019,'Mécanicien qui se déplace chez vous.','meca roue','vd rn',10,'34'),
+C('c35','Vitres Cristal',2015,'Lavage de vitres, résidentiel et commercial.','nfen','vd rn am ma',20,'35'),
+C('c36','Lave-Auto Mobile',2019,'Nettoyage de véhicules à domicile.','nveh det','vd rn am',0,'36'),
+C('c37','Nettoyage Boréal',2017,'Revêtements, pavé et roulottes, propres comme neufs.','nrev npave nrou','vd se ma',0,'37'),
+C('c38','Toutou Propre',2017,'Toilettage mobile pour chiens et chats.','toil','vd rn am ma',15,'38'),
+C('c39','Éclat Beauté Mobile',2019,'Soins esthétiques et ongles à domicile.','esth ong','vd rn am',20,'39'),
+C('c40','Coiffure Chez Vous',2016,'Coiffeuse et barbier qui se déplace.','coif','vd rn',0,'40'),
+C('c41','Détente Massothérapie',2014,'Massage thérapeutique à domicile.','mass','vd rn am',0,'41'),
+C('c42','Aide à Domicile Nord',2012,'Aide et accompagnement pour aînés et familles.','aide','vd rn am ls mc',0,'42'),
+C('c43','Pattes Nettes',2021,'Toilettage doux, rendez-vous à domicile.','toil','vd rn',0,'43')
 ];
-var S={tab:'trouver',view:'home',region:'vd',svc:null,cid:null,q:'',phone:false,bizTab:'dash',me:'c0',
+var S={open:{},tab:'trouver',view:'home',region:'vd',svc:null,cid:null,q:'',phone:false,bizTab:'dash',me:'c0',
   stats:{c0:{app:[41,53,48,62,70,66,84],vues:[0,0],contacts:0}},boostSvc:null,boostReg:null,done:false,errors:null};
 var $=function(s){return document.querySelector(s)};
 function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
@@ -152,11 +226,15 @@ function tabs(){
 }
 
 /* ---------- Côté citoyen ---------- */
+function norm(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')}
+function svcRow(k){var n=count(k,S.region);return '<button class="row" data-act="svc" data-v="'+k+'"><span style="min-width:0"><span class="n">'+SV[k]+'</span><span class="d">'+KW[k][0]+'</span></span><span class="c">'+(n?n+(n>1?' entreprises':' entreprise'):'Aucune')+' ›</span></button>'}
 function svcRows(){
-  var norm=function(s){return String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')};var q=norm(S.q.trim()),keys=Object.keys(SV).filter(function(k){return !q||norm(SV[k]).indexOf(q)>-1});
-  if(!keys.length)return '<p class="muted" style="padding:16px 0">Aucun service ne correspond à « '+esc(S.q)+' ».</p>';
-  return '<div class="list">'+keys.map(function(k){var n=count(k,S.region);
-    return '<button class="row" data-act="svc" data-v="'+k+'"><span class="n">'+SV[k]+'</span><span class="c">'+(n?n+(n>1?' entreprises':' entreprise'):'Aucune')+' ›</span></button>'}).join('')+'</div>';
+  var toks=norm(S.q.trim()).split(/\s+/).filter(Boolean),out='',total=0,searching=toks.length>0;
+  function hit(k){var h=norm(SV[k]+' '+KW[k][0]+' '+KW[k][1]);return toks.every(function(t){return h.indexOf(t)>-1})}
+  CATS.forEach(function(c,i){var ks=c[1].filter(hit);if(!ks.length)return;total+=ks.length;var open=searching||!!S.open[i];
+    out+='<section class="cat"><button class="cathead" data-act="cat" data-v="'+i+'" aria-expanded="'+open+'"><span class="catt">'+c[0]+'</span><span class="catn">'+ks.length+(ks.length>1?' services':' service')+'</span><span class="chev" aria-hidden="true">›</span></button>'+(open?'<div class="list">'+ks.map(svcRow).join('')+'</div>':'')+'</section>'});
+  if(!total)return '<p class="muted" style="padding:16px 0">Aucun service ne correspond à « '+esc(S.q)+' ». Essayez un autre mot, par exemple neige, toit ou eau.</p>';
+  return out;
 }
 function vHome(){
   var opts=Object.keys(R).map(function(k){return '<option value="'+k+'"'+(k===S.region?' selected':'')+'>'+R[k]+'</option>'}).join('');
@@ -221,7 +299,7 @@ function vJoin(){
   '<div class="field"><label class="label" for="j-tel">Téléphone</label><input id="j-tel" type="tel" placeholder="819-555-0100" autocomplete="tel"></div>'+
   '<div class="field"><label class="label" for="j-web">Site web (facultatif)</label><input id="j-web" type="text" placeholder="www.monentreprise.ca" autocapitalize="none" autocomplete="url"></div>'+
   '<div class="field"><span class="label">Secteurs desservis</span><div class="checks" id="regs-j">'+Object.keys(R).map(function(k){return '<label><input type="checkbox" value="'+k+'">'+R[k]+'</label>'}).join('')+'</div>'+(e.reg?'<span class="err">'+e.reg+'</span>':'')+'</div>'+
-  '<div class="field"><span class="label">Services offerts</span><div class="checks" id="svcs-j">'+Object.keys(SV).map(function(k){return '<label><input type="checkbox" value="'+k+'">'+SV[k]+'</label>'}).join('')+'</div>'+(e.svc?'<span class="err">'+e.svc+'</span>':'')+'</div>'+
+  '<div class="field"><span class="label">Services offerts</span><div class="field" id="svcs-j" style="gap:14px">'+CATS.map(function(c){return '<div class="field" style="gap:6px"><span class="small muted">'+c[0]+'</span><div class="checks">'+c[1].map(function(k){return '<label><input type="checkbox" value="'+k+'">'+SV[k]+'</label>'}).join('')+'</div></div>'}).join('')+'</div>'+(e.svc?'<span class="err">'+e.svc+'</span>':'')+'</div>'+
   '<div class="field"><span class="label">Votre abonnement</span><div id="cost">'+cost()+'</div></div>'+
   '<button class="btn block" type="submit">S\'inscrire (simulation)</button></form></main>';
 }
@@ -238,6 +316,7 @@ document.addEventListener('click',function(ev){
   var b=ev.target.closest('[data-act]');if(!b)return;var a=b.dataset.act,v=b.dataset.v;
   if(a==='home'){S.tab='trouver';S.view='home';S.svc=null;S.cid=null;S.phone=false;S.q='';S.errors=null;try{history.replaceState(null,'','#trouver')}catch(e){}go()}
   else if(a==='tab'){S.tab=v;if(b.dataset.b)S.bizTab=b.dataset.b;S.errors=null;try{history.replaceState(null,'','#'+v)}catch(e){}go()}
+  else if(a==='cat'){S.open[v]=!S.open[v];$('#svcs').innerHTML=svcRows()}
   else if(a==='svc'){S.svc=v;S.view='list';go()}
   else if(a==='back'){if(S.view==='profile'&&S.svc){S.view='list'}else{S.view='home';S.svc=null}S.phone=false;go()}
   else if(a==='open'){S.cid=v;S.view='profile';S.phone=false;if(v===S.me)st(v).vues[1]++;go()}
